@@ -10,7 +10,7 @@ app.listen(port, () => {
 
 app.use(express.json());
 
-sequelize.sync({force: false}).then(() => {
+sequelize.sync({force: false}).then(() => { // force: true will drop the table if it already exists
     console.log("all models were synchronized successfully.");
 }
 ).catch(err=>{
@@ -42,5 +42,40 @@ app.post('/create', async (req, res) => {
     }
 });
 
+app.put('/update/:id', async (req, res) => {
+    try{
+        const {id} = req.params;
+        const {name, email} = req.body;
+        const user = await User.findOne({
+            where: {
+                id
+            }
+        });
+        user.name = name;
+        user.email = email;
+        await user.save();
+        res.json(user);
+    }
+    catch(err){
+        console.log(err);
+    }
+}
+);
+
+app.delete('/delete/:id', async (req, res) => {
+    try{
+        const {id} = req.params;
+        const user = await User.findOne({
+            where: {
+                id
+            }
+        });
+        await user.destroy();
+        res.json("User deleted");
+    }catch(err){
+        console.log(err);
+    }
+}
+);
 
 
